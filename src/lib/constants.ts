@@ -37,6 +37,13 @@ export const DISCIPLINAS = [
   { id: "voley", label: "Vóley", sheet: "VOLEY" },
   { id: "handball", label: "Handball", sheet: "HANDBALL" },
   { id: "gimnasia", label: "Gimnasia", sheet: "GIMNASIA" },
+  { id: "chikun", label: "Chikún", sheet: "CHIKUN" },
+  { id: "stretching", label: "Stretching", sheet: "STRETCHING" },
+  { id: "ritmos", label: "Ritmos", sheet: "RITMOS" },
+  { id: "folclore", label: "Folclore", sheet: "FOLCLORE" },
+  { id: "efi", label: "EFI", sheet: "EFI" },
+  { id: "gimnasiaArtistica", label: "Gimnasia Artística", sheet: "GIMNASIA ARTISTICA" },
+  { id: "pilates", label: "Pilates", sheet: "PILATES" },
 ] as const;
 
 export type DisciplinaId = (typeof DISCIPLINAS)[number]["id"];
