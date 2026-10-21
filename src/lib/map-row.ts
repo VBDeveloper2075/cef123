@@ -11,6 +11,7 @@ export const SHEET_HEADERS = [
   "LEGAJO",
   "APELLIDO Y NOMBRE",
   "DNI",
+  "CUIL",
   "FECHA DE NACIMIENTO",
   "EDAD",
   "TELEFONO",
@@ -32,6 +33,7 @@ export const SHEET_HEADERS = [
   "HOSPITAL EMERGENCIA",
   "CONTACTO EMERGENCIA",
   "AUTORIZACION IMAGEN",
+  "PROPUESTA EDUCATIVA",
   "CICLO LECTIVO",
 ] as const;
 
@@ -48,6 +50,7 @@ export function observationsFrom(data: InscripcionForm): string {
     .filter(Boolean);
   if (salud.length) notes.push(`SALUD: ${salud.join(", ")}`);
   if (data.detalleSalud.trim()) notes.push(data.detalleSalud.trim());
+  notes.push("SEGUN CUPOS / LISTA DE ESPERA");
   return notes.join(" | ");
 }
 
@@ -60,6 +63,7 @@ export function mapToSheetRow(data: InscripcionForm, legajo: string): string[] {
     legajo,
     nombrePlanilla(data.apellido, data.nombre),
     soloDigitos(data.dni),
+    soloDigitos(data.cuil),
     formatFechaAR(data.fechaNacimiento),
     String(edad),
     soloDigitos(data.telefonoCelular),
@@ -83,6 +87,7 @@ export function mapToSheetRow(data: InscripcionForm, legajo: string): string[] {
     data.hospitalEmergencia.toUpperCase(),
     `${data.contactoEmergenciaNombre.toUpperCase()} ${soloDigitos(data.contactoEmergenciaTelefono)}`.trim(),
     data.completarAutorizacionImagen && data.imagenConsentimiento ? "SI" : "NO",
+    data.propuestaEducativa.trim(),
     String(CICLO_LECTIVO),
   ];
 }

@@ -19,9 +19,12 @@ export const disciplinaIds = DISCIPLINA_CATALOGO.map((d) => d.id) as [
 
 export const inscripcionSchema = z
   .object({
-    disciplinas: z
-      .array(z.enum(disciplinaIds))
-      .min(1, "Seleccioná al menos una disciplina"),
+    propuestaEducativa: z
+      .string({ required_error: requerido })
+      .trim()
+      .min(10, "Contá qué disciplinas o actividades querés cursar")
+      .max(800, "Máximo 800 caracteres"),
+    disciplinas: z.array(z.enum(disciplinaIds)).default([]),
     turno: z.enum(["manana", "tarde", "vespertino"], {
       required_error: "Seleccioná un turno",
     }),
@@ -34,7 +37,12 @@ export const inscripcionSchema = z
       required_error: "Indicá la situación del DNI",
     }),
     dni: opcional,
-    cuil: opcional,
+    cuil: z
+      .string({ required_error: "El CUIL es obligatorio" })
+      .trim()
+      .refine((v) => v.replace(/\D/g, "").length === 11, {
+        message: "El CUIL debe tener 11 dígitos (20 - 12345678 - 9)",
+      }),
     identidadGenero: z.enum(
       ["mujer", "varon", "no_binaria", "otra", "no_especifica"],
       { required_error: "Seleccioná una opción" },
@@ -56,16 +64,14 @@ export const inscripcionSchema = z
       .string({ required_error: requerido })
       .trim()
       .email("Correo electrónico inválido"),
-    nivelModalidad: z.enum(
-      ["inicial", "primaria", "secundaria", "especial", "adultos", "no_asiste"],
-      { required_error: "Seleccioná el nivel" },
-    ),
-    gestion: z.enum(["estatal", "privada", "social"], {
-      required_error: "Seleccioná la gestión",
-    }),
+    nivelModalidad: z
+      .enum(["", "inicial", "primaria", "secundaria", "especial", "adultos", "no_asiste"])
+      .optional()
+      .default(""),
+    gestion: z.enum(["", "estatal", "privada", "social"]).optional().default(""),
     dependencia: opcional,
-    nombreEscuela: texto(),
-    anoEstudio: texto(1, 40),
+    nombreEscuela: opcional,
+    anoEstudio: opcional,
 
     responsableNombre: opcional,
     responsableDni: opcional,
@@ -101,16 +107,13 @@ export const inscripcionSchema = z
     imagenConsentimiento: z.boolean().default(false),
   })
   .superRefine((data, ctx) => {
-    const dniRequerido =
-      data.situacionDni === "fisico" || data.situacionDni === "cpi";
-    if (dniRequerido && !data.dni.trim()) {
+    if (!data.dni.trim()) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["dni"],
         message: "Ingresá el número de DNI / documento",
       });
-    }
-    if (data.dni && !/^\d{7,9}$/.test(data.dni.replace(/\D/g, ""))) {
+    } else if (!/^\d{7,9}$/.test(data.dni.replace(/\D/g, ""))) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["dni"],
@@ -192,6 +195,7 @@ export type InscripcionForm = z.infer<typeof inscripcionSchema>;
 export type InscripcionInput = z.input<typeof inscripcionSchema>;
 
 export const defaultValues: InscripcionInput = {
+  propuestaEducativa: "",
   disciplinas: [],
   turno: undefined as unknown as InscripcionForm["turno"],
   apellido: "",
@@ -211,8 +215,8 @@ export const defaultValues: InscripcionInput = {
   distrito: "",
   telefonoCelular: "",
   email: "",
-  nivelModalidad: undefined as unknown as InscripcionForm["nivelModalidad"],
-  gestion: undefined as unknown as InscripcionForm["gestion"],
+  nivelModalidad: "",
+  gestion: "",
   dependencia: "",
   nombreEscuela: "",
   anoEstudio: "",
@@ -240,6 +244,7 @@ export const defaultValues: InscripcionInput = {
 };
 
 export const CAMPOS_PASO_ESTUDIANTE: (keyof InscripcionForm)[] = [
+  "propuestaEducativa",
   "disciplinas",
   "turno",
   "apellido",

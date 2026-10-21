@@ -3,14 +3,15 @@ import type { ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/cn";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 rounded-full text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-700 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center gap-2 rounded-full text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1A3D8F] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        primary: "bg-teal-800 text-white hover:bg-teal-900",
+        primary: "bg-[#1A3D8F] text-white hover:bg-[#152f6e]",
         secondary:
           "border border-stone-300 bg-white text-stone-800 hover:bg-stone-50",
-        ghost: "text-teal-800 hover:bg-teal-50",
+        ghost: "text-[#1A3D8F] hover:bg-blue-50",
+        cooperadora: "bg-[#C8102E] text-white hover:bg-[#a30d25]",
       },
       size: {
         md: "h-11 px-5",

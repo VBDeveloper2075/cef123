@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { edadAl30DeJunio, formatFechaAR, nombrePlanilla } from "@/lib/age";
+import { COOPERADORA_MONTO } from "@/lib/constants";
 import { observationsFrom } from "@/lib/map-row";
 import { inscripcionSchema } from "@/lib/schema";
 import { persistInscripcion } from "@/lib/sheets";
@@ -30,6 +31,7 @@ export async function POST(request: Request) {
       provider: result.provider,
       apellidoNombre: nombrePlanilla(data.apellido, data.nombre),
       dni: data.dni,
+      cuil: data.cuil,
       fechaNacimiento: formatFechaAR(data.fechaNacimiento),
       edad: edadAl30DeJunio(data.fechaNacimiento),
       observaciones: observationsFrom(data),
@@ -37,6 +39,8 @@ export async function POST(request: Request) {
       turno: data.turno,
       email: data.email,
       telefono: data.telefonoCelular,
+      ficha: data,
+      montoCooperadora: COOPERADORA_MONTO,
     });
   } catch (error) {
     const message =

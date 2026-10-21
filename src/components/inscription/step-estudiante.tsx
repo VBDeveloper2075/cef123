@@ -12,7 +12,8 @@ import {
   TURNOS,
 } from "@/lib/constants";
 import type { InscripcionForm } from "@/lib/schema";
-import { Field, FieldError, Input, Label, Select } from "@/components/ui/field";
+import { CuilInput } from "@/components/ui/cuil-input";
+import { Field, FieldError, Input, Label, Select, Textarea } from "@/components/ui/field";
 
 export function StepEstudiante() {
   const {
@@ -27,14 +28,13 @@ export function StepEstudiante() {
     <div className="space-y-8">
       <section>
         <h2 className="font-serif text-2xl text-stone-900">Propuesta educativa</h2>
-        <p className="mt-1 text-sm text-stone-600">
-          Elegí una o más disciplinas y el turno en el que el estudiante puede asistir.
-        </p>
+        
+        <p className="mt-5 text-sm font-medium text-stone-800">Marcá las disciplinas (opcional)</p>
         <Controller
           name="disciplinas"
           control={control}
           render={({ field }) => (
-            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
               {DISCIPLINAS.map((d) => {
                 const checked = field.value.includes(d.id);
                 return (
@@ -42,13 +42,13 @@ export function StepEstudiante() {
                     key={d.id}
                     className={`flex cursor-pointer items-center gap-3 rounded-2xl border px-4 py-3 text-sm transition ${
                       checked
-                        ? "border-teal-800 bg-teal-50 text-teal-950"
+                        ? "border-[#1A3D8F] bg-blue-50 text-[#152f6e]"
                         : "border-stone-200 bg-white hover:border-stone-300"
                     }`}
                   >
                     <input
                       type="checkbox"
-                      className="size-4 accent-teal-800"
+                      className="size-4 accent-[#1A3D8F]"
                       checked={checked}
                       onChange={() => {
                         field.onChange(
@@ -73,19 +73,41 @@ export function StepEstudiante() {
             {TURNOS.map((t) => (
               <label
                 key={t.id}
-                className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm has-[:checked]:border-teal-800 has-[:checked]:bg-teal-800 has-[:checked]:text-white"
+                className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm has-[:checked]:border-[#1A3D8F] has-[:checked]:bg-[#1A3D8F] has-[:checked]:text-white"
               >
-                <input type="radio" value={t.id} className="size-4 accent-teal-800" {...register("turno")} />
+                <input type="radio" value={t.id} className="size-4 accent-[#1A3D8F]" {...register("turno")} />
                 {t.label}
               </label>
             ))}
           </div>
           <FieldError message={errors.turno?.message} />
         </fieldset>
+        <p className="mt-1 text-sm text-stone-600">
+          Escribí las disciplinas o actividades en las que querés inscribirte y el detalle que
+          consideres necesario.
+        </p>
+        <Field className="mt-4">
+          <Label htmlFor="propuestaEducativa" required>
+            Propuesta
+          </Label>
+          <Textarea
+            id="propuestaEducativa"
+            rows={6}
+            className="min-h-36"
+            placeholder="Ej.: Natación turno mañana y atletismo. Si no hay cupo, acepto lista de espera en básquet."
+            {...register("propuestaEducativa")}
+          />
+          <FieldError message={errors.propuestaEducativa?.message} />
+          <p className="mt-2 text-sm font-semibold text-[#C8102E]">
+            Las solicitudes se considerarán según los cupos disponibles y pueden quedar en lista de
+            espera.
+          </p>
+        </Field>
+
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2">
-        <h2 className="font-serif text-2xl text-stone-900 sm:col-span-2">Datos del estudiante</h2>
+        <h2 className="font-serif text-2xl text-stone-900 sm:col-span-2">Datos del Alumna/o</h2>
         <Field>
           <Label htmlFor="apellido" required>
             Apellido
@@ -128,13 +150,30 @@ export function StepEstudiante() {
           <FieldError message={errors.situacionDni?.message} />
         </Field>
         <Field>
-          <Label htmlFor="dni">Número de DNI</Label>
+          <Label htmlFor="dni" required>
+            Número de DNI
+          </Label>
           <Input id="dni" inputMode="numeric" {...register("dni")} />
           <FieldError message={errors.dni?.message} />
         </Field>
         <Field>
-          <Label htmlFor="cuil">CUIL (opcional)</Label>
-          <Input id="cuil" inputMode="numeric" {...register("cuil")} />
+          <Label htmlFor="cuil" required>
+            CUIL
+          </Label>
+          <Controller
+            name="cuil"
+            control={control}
+            render={({ field }) => (
+              <CuilInput
+                id="cuil"
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+              />
+            )}
+          />
+          
+          <FieldError message={errors.cuil?.message} />
         </Field>
         <Field>
           <Label htmlFor="identidadGenero" required>
@@ -224,10 +263,11 @@ export function StepEstudiante() {
         <h2 className="font-serif text-2xl text-stone-900 sm:col-span-2">
           Establecimiento educativo de origen
         </h2>
+        <p className="text-sm text-stone-600 sm:col-span-2">
+          Completá solo si corresponde. Para menores de 18 años.
+        </p>
         <Field>
-          <Label htmlFor="nivelModalidad" required>
-            Nivel / Modalidad
-          </Label>
+          <Label htmlFor="nivelModalidad">Nivel / Modalidad</Label>
           <Select id="nivelModalidad" {...register("nivelModalidad")}>
             <option value="">Seleccionar…</option>
             {NIVELES_MODALIDAD.map((s) => (
@@ -236,12 +276,9 @@ export function StepEstudiante() {
               </option>
             ))}
           </Select>
-          <FieldError message={errors.nivelModalidad?.message} />
         </Field>
         <Field>
-          <Label htmlFor="gestion" required>
-            Gestión
-          </Label>
+          <Label htmlFor="gestion">Gestión</Label>
           <Select id="gestion" {...register("gestion")}>
             <option value="">Seleccionar…</option>
             {GESTIONES.map((s) => (
@@ -250,25 +287,22 @@ export function StepEstudiante() {
               </option>
             ))}
           </Select>
-          <FieldError message={errors.gestion?.message} />
         </Field>
         <Field>
           <Label htmlFor="dependencia">Dependencia</Label>
           <Input id="dependencia" placeholder="Ej. Dirección General de Cultura y Educación" {...register("dependencia")} />
         </Field>
         <Field>
-          <Label htmlFor="anoEstudio" required>
-            Año de estudio
-          </Label>
+          <Label htmlFor="anoEstudio">Año de estudio</Label>
           <Input id="anoEstudio" placeholder="Ej. 4.º año" {...register("anoEstudio")} />
-          <FieldError message={errors.anoEstudio?.message} />
         </Field>
         <Field className="sm:col-span-2">
-          <Label htmlFor="nombreEscuela" required>
-            Nombre de la escuela
-          </Label>
-          <Input id="nombreEscuela" {...register("nombreEscuela")} />
-          <FieldError message={errors.nombreEscuela?.message} />
+          <Label htmlFor="nombreEscuela">Nombre de la escuela</Label>
+          <Input
+            id="nombreEscuela"
+            placeholder="Escuela de Educación Secundaria N° 14"
+            {...register("nombreEscuela")}
+          />
         </Field>
       </section>
     </div>

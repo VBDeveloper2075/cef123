@@ -29,7 +29,7 @@ export function StepImagen() {
         onClick={() => setValue("completarAutorizacionImagen", !activo, { shouldValidate: true })}
         className={`flex w-full items-center justify-between rounded-2xl border px-5 py-4 text-left text-sm font-medium transition ${
           activo
-            ? "border-teal-800 bg-teal-50 text-teal-950"
+            ? "border-[#1A3D8F] bg-blue-50 text-[#152f6e]"
             : "border-stone-200 bg-white text-stone-800"
         }`}
       >
@@ -40,7 +40,7 @@ export function StepImagen() {
       </button>
 
       {activo ? (
-        <div className="grid gap-4 rounded-2xl border border-teal-100 bg-white p-5 sm:grid-cols-2">
+        <div className="grid gap-4 rounded-2xl border border-[#1A3D8F]/15 bg-white p-5 sm:grid-cols-2">
           <Field className="sm:col-span-2">
             <Label htmlFor="imagenAdultoNombre" required>
               Nombre del adulto responsable
@@ -72,7 +72,7 @@ export function StepImagen() {
           <label className="sm:col-span-2 flex items-start gap-3 text-sm text-stone-800">
             <input
               type="checkbox"
-              className="mt-0.5 size-4 accent-teal-800"
+              className="mt-0.5 size-4 accent-[#1A3D8F]"
               {...register("imagenConsentimiento")}
             />
             <span>

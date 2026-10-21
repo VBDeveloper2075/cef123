@@ -20,9 +20,9 @@ const instrument = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "Inscripción CEF — Centro de Educación Física",
+  title: "Inscripción CEF 123 Caseros",
   description:
-    "Formulario digital de inscripción de estudiantes, ficha médica y sincronización con la planilla administrativa.",
+    "Ficha digital de inscripción del Centro de Educación Física N.º 123 Caseros. Ahorramos fotocopias.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

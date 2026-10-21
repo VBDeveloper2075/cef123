@@ -1,5 +1,32 @@
 export const CICLO_LECTIVO = Number(process.env.NEXT_PUBLIC_CICLO_LECTIVO ?? "2026");
 
+const montoEnv = Number(process.env.NEXT_PUBLIC_COOPERADORA_MONTO);
+export const COOPERADORA_MONTO =
+  Number.isFinite(montoEnv) && montoEnv > 0 ? montoEnv : 5000;
+
+export const REDES = [
+  {
+    id: "instagram",
+    label: "Instagram",
+    href: process.env.NEXT_PUBLIC_SOCIAL_INSTAGRAM || "#instagram",
+  },
+  {
+    id: "facebook",
+    label: "Facebook",
+    href: process.env.NEXT_PUBLIC_SOCIAL_FACEBOOK || "#facebook",
+  },
+  {
+    id: "youtube",
+    label: "YouTube",
+    href: process.env.NEXT_PUBLIC_SOCIAL_YOUTUBE || "#youtube",
+  },
+  {
+    id: "whatsapp",
+    label: "WhatsApp",
+    href: process.env.NEXT_PUBLIC_SOCIAL_WHATSAPP || "#whatsapp",
+  },
+] as const;
+
 export const DISCIPLINAS = [
   { id: "natacion", label: "Natación", sheet: "NATACION" },
   { id: "atletismo", label: "Atletismo", sheet: "ATLETISMO" },

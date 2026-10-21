@@ -1,13 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f4efe6;
+  --background: #f6f4f0;
   --foreground: #1c1917;
+  --cef-blue: #1a3d8f;
+  --cef-red: #c8102e;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-cef-blue: var(--cef-blue);
+  --color-cef-red: var(--cef-red);
   --font-sans: var(--font-geist-sans);
   --font-serif: var(--font-instrument);
   --font-mono: var(--font-geist-mono);
@@ -21,5 +25,8 @@ body {
 @media print {
   body {
     background: white;
+  }
+  header, footer, .print\:hidden {
+    display: none !important;
   }
 }

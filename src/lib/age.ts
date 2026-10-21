@@ -50,6 +50,22 @@ export function soloDigitos(valor: string) {
   return valor.replace(/\D/g, "");
 }
 
+export function formatCuil(valor: string) {
+  const d = soloDigitos(valor).slice(0, 11);
+  if (d.length === 11) return `${d.slice(0, 2)} - ${d.slice(2, 10)} - ${d.slice(10)}`;
+  return d;
+}
+
+export function formatCuilDisplay(valor: string) {
+  const d = soloDigitos(valor).slice(0, 11);
+  return {
+    pre: d.slice(0, 2),
+    mid: d.slice(2, 10),
+    last: d.slice(10, 11),
+    formatted: d.length === 11 ? `${d.slice(0, 2)} - ${d.slice(2, 10)} - ${d.slice(10)}` : "",
+  };
+}
+
 export function nombrePlanilla(apellido: string, nombre: string) {
   return `${apellido.trim()}, ${nombre.trim()}`.toUpperCase();
 }
