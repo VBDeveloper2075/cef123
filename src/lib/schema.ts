@@ -100,11 +100,24 @@ export const inscripcionSchema = z
       }),
     }),
 
-    completarAutorizacionImagen: z.boolean().default(false),
-    imagenAdultoNombre: opcional,
-    imagenAdultoDni: opcional,
-    imagenVinculo: opcional,
-    imagenConsentimiento: z.boolean().default(false),
+    imagenLugar: texto(2, 80),
+    imagenAdultoNombre: texto(),
+    imagenAdultoDocTipo: z
+      .enum(["DNI", "CPI", "Pasaporte"], { required_error: "Indicá el tipo de documento" })
+      .default("DNI"),
+    imagenAdultoDni: z
+      .string({ required_error: "DNI del firmante" })
+      .trim()
+      .min(6, "Ingresá el número de documento"),
+    imagenVinculo: z.enum(["madre", "padre", "tutor", "titular"], {
+      required_error: "Marcá si firmás como madre, padre, tutor o estudiante mayor",
+    }),
+    imagenConsentimiento: z.enum(["si", "no"], {
+      required_error: "Marcá SI o NO en la autorización de imagen",
+    }),
+    retiroSolo: z.enum(["si", "no"], {
+      required_error: "Marcá SI o NO en la autorización de retiro",
+    }),
   })
   .superRefine((data, ctx) => {
     if (!data.dni.trim()) {
@@ -122,6 +135,21 @@ export const inscripcionSchema = z
     }
 
     if (esMenorDeEdad(data.fechaNacimiento)) {
+      const escuela: [keyof typeof data, string][] = [
+        ["nombreEscuela", "Indicá el nombre de la escuela"],
+        ["nivelModalidad", "Indicá el nivel / modalidad"],
+        ["gestion", "Indicá la gestión"],
+        ["anoEstudio", "Indicá el año de estudio"],
+      ];
+      for (const [campo, mensaje] of escuela) {
+        if (!String(data[campo] ?? "").trim()) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: [campo],
+            message: mensaje,
+          });
+        }
+      }
       const campos: [keyof typeof data, string][] = [
         ["responsableNombre", "Nombre y apellido del adulto responsable"],
         ["responsableDni", "DNI del adulto responsable"],
@@ -159,36 +187,6 @@ export const inscripcionSchema = z
       }
     }
 
-    if (data.completarAutorizacionImagen) {
-      if (!data.imagenAdultoNombre.trim()) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["imagenAdultoNombre"],
-          message: "Nombre del adulto que autoriza",
-        });
-      }
-      if (!data.imagenAdultoDni.trim()) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["imagenAdultoDni"],
-          message: "DNI del adulto que autoriza",
-        });
-      }
-      if (!data.imagenVinculo.trim()) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["imagenVinculo"],
-          message: "Indicá el vínculo con el alumno",
-        });
-      }
-      if (!data.imagenConsentimiento) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["imagenConsentimiento"],
-          message: "El consentimiento explícito es obligatorio",
-        });
-      }
-    }
   });
 
 export type InscripcionForm = z.infer<typeof inscripcionSchema>;
@@ -236,11 +234,13 @@ export const defaultValues: InscripcionInput = {
   contactoEmergenciaNombre: "",
   contactoEmergenciaTelefono: "",
   declaracionJuradaSalud: false as unknown as true,
-  completarAutorizacionImagen: false,
+  imagenLugar: "Caseros",
   imagenAdultoNombre: "",
+  imagenAdultoDocTipo: "DNI",
   imagenAdultoDni: "",
-  imagenVinculo: "",
-  imagenConsentimiento: false,
+  imagenVinculo: undefined as unknown as InscripcionForm["imagenVinculo"],
+  imagenConsentimiento: undefined as unknown as InscripcionForm["imagenConsentimiento"],
+  retiroSolo: undefined as unknown as InscripcionForm["retiroSolo"],
 };
 
 export const CAMPOS_PASO_ESTUDIANTE: (keyof InscripcionForm)[] = [
@@ -294,9 +294,11 @@ export const CAMPOS_PASO_SALUD: (keyof InscripcionForm)[] = [
 ];
 
 export const CAMPOS_PASO_IMAGEN: (keyof InscripcionForm)[] = [
-  "completarAutorizacionImagen",
+  "imagenLugar",
   "imagenAdultoNombre",
+  "imagenAdultoDocTipo",
   "imagenAdultoDni",
   "imagenVinculo",
   "imagenConsentimiento",
+  "retiroSolo",
 ];

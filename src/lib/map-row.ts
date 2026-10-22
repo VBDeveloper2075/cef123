@@ -33,6 +33,7 @@ export const SHEET_HEADERS = [
   "HOSPITAL EMERGENCIA",
   "CONTACTO EMERGENCIA",
   "AUTORIZACION IMAGEN",
+  "AUTORIZACION RETIRO",
   "PROPUESTA EDUCATIVA",
   "CICLO LECTIVO",
 ] as const;
@@ -86,7 +87,8 @@ export function mapToSheetRow(data: InscripcionForm, legajo: string): string[] {
       : "NO",
     data.hospitalEmergencia.toUpperCase(),
     `${data.contactoEmergenciaNombre.toUpperCase()} ${soloDigitos(data.contactoEmergenciaTelefono)}`.trim(),
-    data.completarAutorizacionImagen && data.imagenConsentimiento ? "SI" : "NO",
+    data.imagenConsentimiento === "si" ? "SI" : "NO",
+    data.retiroSolo === "si" ? "SI" : "NO",
     data.propuestaEducativa.trim(),
     String(CICLO_LECTIVO),
   ];

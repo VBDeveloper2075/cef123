@@ -39,9 +39,11 @@
   "contactoEmergenciaNombre": "Ana Perez",
   "contactoEmergenciaTelefono": "2214445566",
   "declaracionJuradaSalud": true,
-  "completarAutorizacionImagen": true,
+  "imagenLugar": "Caseros",
   "imagenAdultoNombre": "Ana Perez",
+  "imagenAdultoDocTipo": "DNI",
   "imagenAdultoDni": "25123456",
   "imagenVinculo": "madre",
-  "imagenConsentimiento": true
+  "imagenConsentimiento": "si",
+  "retiroSolo": "si"
 }

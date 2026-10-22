@@ -15,7 +15,7 @@ import { FormProvider, useForm, useWatch, type FieldErrors } from "react-hook-fo
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { esMenorDeEdad } from "@/lib/age";
-import { CICLO_LECTIVO, COOPERADORA_MONTO, DISCIPLINAS, TURNOS } from "@/lib/constants";
+import { CICLO_LECTIVO, COOPERADORA_MONTO, DISCIPLINAS, LEYENDA_CIERRE, TURNOS } from "@/lib/constants";
 import type { Comprobante } from "@/lib/pdf";
 import { descargarComprobantePdf } from "@/lib/pdf";
 import {
@@ -37,7 +37,7 @@ const BASE_STEPS = [
   { id: "estudiante", title: "Estudiante" },
   { id: "responsable", title: "Responsable" },
   { id: "salud", title: "Ficha médica" },
-  { id: "imagen", title: "Imagen" },
+  { id: "imagen", title: "Imagen y retiro" },
 ] as const;
 
 export function InscriptionWizard() {
@@ -297,6 +297,9 @@ function SuccessScreen({ data }: { data: Comprobante }) {
               Imprimir
             </Button>
           </div>
+          <p className="mt-5 text-sm font-medium leading-relaxed text-[#C8102E]">
+            {LEYENDA_CIERRE}
+          </p>
         </div>
       )}
     </div>

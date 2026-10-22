@@ -5,7 +5,9 @@ import {
   COOPERADORA_MONTO,
   CONDICIONES_SALUD,
   DISCIPLINAS,
+  LEYENDA_CIERRE,
   TURNOS,
+  VINCULOS_IMAGEN,
 } from "./constants";
 import type { InscripcionForm } from "./schema";
 
@@ -140,7 +142,7 @@ export async function descargarComprobantePdf(data: Comprobante) {
     y,
     186,
     14,
-    "Establecimiento de origen (opcional)",
+    "Establecimiento de origen",
     [ficha.nombreEscuela, ficha.anoEstudio, ficha.nivelModalidad, ficha.gestion]
       .filter(Boolean)
       .join(" — ") || "No corresponde / no asiste",
@@ -162,7 +164,7 @@ export async function descargarComprobantePdf(data: Comprobante) {
   y += 8;
   doc.text(`Lugar y fecha: Caseros, ${hoy}`, 12, y);
   doc.setFontSize(7);
-  doc.text("Hoja 1/3 — Ficha de inscripcion CEF 123 Caseros", 12, 287);
+  doc.text("Hoja 1/4 — Ficha de inscripcion CEF 123 Caseros", 12, 287);
 
   doc.addPage();
   header(doc, logo, `FICHA MEDICA Y AUTORIZACION — CICLO ${CICLO_LECTIVO}`);
@@ -213,23 +215,79 @@ export async function descargarComprobantePdf(data: Comprobante) {
   );
   doc.text(dj, 12, y);
   y += dj.length * 5 + 8;
-  box(
-    doc,
-    12,
-    y,
-    186,
-    22,
-    "Autorizacion de uso de imagen",
-    ficha.completarAutorizacionImagen && ficha.imagenConsentimiento
-      ? `SI — Autoriza ${ficha.imagenAdultoNombre} (DNI ${ficha.imagenAdultoDni}), vinculo: ${ficha.imagenVinculo}.`
-      : "NO se completo el modulo de autorizacion de imagen.",
-  );
-  y += 30;
   doc.setFontSize(8);
   doc.setTextColor(60, 60, 60);
   doc.text("Firma: ______________________________     Aclaracion: ____________________", 12, y);
   doc.setFontSize(7);
-  doc.text("Hoja 2/3 — Ficha medica CEF 123 Caseros", 12, 287);
+  doc.text("Hoja 2/4 — Ficha medica CEF 123 Caseros", 12, 287);
+
+  doc.addPage();
+  header(doc, logo, 'AUTORIZACION DE USO DE IMAGEN DE ESTUDIANTES — "Jorge Newbery"');
+  y = 44;
+  const vinculo =
+    VINCULOS_IMAGEN.find((v) => v.id === ficha.imagenVinculo)?.label ?? ficha.imagenVinculo ?? "—";
+  const marcaSiNo = (valor: string | undefined) =>
+    valor === "si" ? "SI  [X]     NO  [ ]" : valor === "no" ? "SI  [ ]     NO  [X]" : "SI  [ ]     NO  [ ]";
+  box(doc, 12, y, 93, 12, "Lugar", ficha.imagenLugar || "Caseros");
+  box(doc, 107, y, 91, 12, "Fecha", hoy);
+  y += 14;
+  box(doc, 12, y, 186, 12, "Quien suscribe", ficha.imagenAdultoNombre || "—");
+  y += 14;
+  box(doc, 12, y, 70, 12, "Documento tipo", ficha.imagenAdultoDocTipo || "DNI");
+  box(doc, 84, y, 114, 12, "Numero", ficha.imagenAdultoDni || "—");
+  y += 16;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.setTextColor(...RED);
+  doc.text(marcaSiNo(ficha.imagenConsentimiento), 12, y);
+  y += 6;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(30, 30, 30);
+  const autorizo = doc.splitTextToSize(
+    `AUTORIZO como ${vinculo} a la Direccion General de Cultura y Educacion de la Provincia de Buenos Aires y/o a quien ellos indiquen, de forma gratuita y sin limite de tiempo, a la utilizacion, exhibicion y/o reproduccion por cualquier medio fisico o digital, grafico y/o audiovisual, actualmente conocido o que se invente en el futuro, y con fines estrictamente educativos, de las imagenes, videos y sonidos registrados en las diferentes actividades educativas del CEF N. 123, de`,
+    186,
+  );
+  doc.text(autorizo, 12, y);
+  y += autorizo.length * 4 + 4;
+  box(doc, 12, y, 120, 12, "el/la ESTUDIANTE", data.apellidoNombre);
+  box(doc, 134, y, 64, 12, "DNI N.", data.dni || "—");
+  y += 16;
+  doc.setFontSize(7);
+  doc.setTextColor(70, 70, 70);
+  const art53 = doc.splitTextToSize(
+    "Por la presente cumplo con lo preceptuado por el art. 53 del Codigo Civil y Comercial de la Nacion y art. 31 de la Ley 11.723, significando este el aviso que preve la normativa vigente. Art. 53 C.C.C.N.: para captar o reproducir la imagen o la voz de una persona es necesario su consentimiento, salvo las excepciones legales. Art. 31 Ley 11.723: el retrato fotografico no puede ser puesto en el comercio sin consentimiento expreso; quien lo dio puede revocarlo resarciendo danos y perjuicios.",
+    186,
+  );
+  doc.text(art53, 12, y);
+  y += art53.length * 3.4 + 8;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.setTextColor(...BLUE);
+  doc.text("AUTORIZACION DE RETIRO", 105, y, { align: "center" });
+  y += 7;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(30, 30, 30);
+  const retiro = doc.splitTextToSize(
+    `Por medio de la presente, autorizo a mi hijo/a ${data.apellidoNombre}, DNI N. ${data.dni || "—"}, Fecha de nac.: ${data.fechaNacimiento}, Edad: ${data.edad != null ? `${data.edad} anos` : "—"}, a retirarse solo/a del CEF 123 cuando finalice el horario de su propuesta.`,
+    186,
+  );
+  doc.text(retiro, 12, y);
+  y += retiro.length * 4.5 + 6;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.setTextColor(...RED);
+  doc.text(marcaSiNo(ficha.retiroSolo), 12, y);
+  y += 10;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(60, 60, 60);
+  doc.text("Firma: ____________________   Aclaracion: ____________________   DNI: ____________", 12, y);
+  y += 6;
+  doc.text(`Lugar y fecha: ${ficha.imagenLugar || "Caseros"}, ${hoy}`, 12, y);
+  doc.setFontSize(7);
+  doc.text("Hoja 3/4 — Autorizacion de imagen y retiro CEF 123 Caseros", 12, 287);
 
   doc.addPage();
   header(doc, logo, "COMPROBANTE DE COOPERADORA E INSCRIPCION DIGITAL");
@@ -271,9 +329,16 @@ export async function descargarComprobantePdf(data: Comprobante) {
     y + 140,
     { align: "center" },
   );
+  const cierre = doc.splitTextToSize(LEYENDA_CIERRE, 174);
+  doc.setDrawColor(...RED);
+  doc.setLineWidth(0.4);
+  doc.roundedRect(18, y + 152, 174, 28, 2, 2);
+  doc.setFontSize(8);
+  doc.setTextColor(...RED);
+  doc.text(cierre, 105, y + 162, { align: "center" });
   doc.setFontSize(7);
   doc.setTextColor(80, 80, 80);
-  doc.text("Hoja 3/3 — Comprobante de cooperadora CEF 123 Caseros", 12, 287);
+  doc.text("Hoja 4/4 — Comprobante de cooperadora CEF 123 Caseros", 12, 287);
 
   doc.save(`planilla-inscripcion-${data.legajo}.pdf`);
 }

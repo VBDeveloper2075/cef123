@@ -92,6 +92,22 @@ export const VINCULOS = [
   { id: "otro", label: "Otro" },
 ] as const;
 
+export const VINCULOS_IMAGEN = [
+  { id: "madre", label: "Madre" },
+  { id: "padre", label: "Padre" },
+  { id: "tutor", label: "Tutor/a representante" },
+  { id: "titular", label: "El/la propio/a estudiante (mayor de edad)" },
+] as const;
+
+export const TIPOS_DOCUMENTO = [
+  { id: "DNI", label: "DNI" },
+  { id: "CPI", label: "CPI" },
+  { id: "Pasaporte", label: "Pasaporte" },
+] as const;
+
+export const LEYENDA_CIERRE =
+  "¡Felicitaciones! Completaste todo. Ahora guardá este documento y, con el número de inscripción, acercate en los días y horarios de atención con fotocopia del DNI en mano, a registrar tu firma y dar validez al trámite.";
+
 export const NIVELES_ESTUDIO = [
   { id: "primario", label: "Primario" },
   { id: "secundario", label: "Secundario" },

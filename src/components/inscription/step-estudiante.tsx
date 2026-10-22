@@ -1,7 +1,7 @@
 "use client";
 
 import { Controller, useFormContext, useWatch } from "react-hook-form";
-import { edadAl30DeJunio } from "@/lib/age";
+import { edadAl30DeJunio, esMenorDeEdad } from "@/lib/age";
 import {
   CICLO_LECTIVO,
   DISCIPLINAS,
@@ -23,6 +23,7 @@ export function StepEstudiante() {
   } = useFormContext<InscripcionForm>();
   const fecha = useWatch({ control, name: "fechaNacimiento" });
   const edad = fecha ? edadAl30DeJunio(fecha) : null;
+  const menor = fecha ? esMenorDeEdad(fecha) : false;
 
   return (
     <div className="space-y-8">
@@ -264,10 +265,14 @@ export function StepEstudiante() {
           Establecimiento educativo de origen
         </h2>
         <p className="text-sm text-stone-600 sm:col-span-2">
-          Completá solo si corresponde. Para menores de 18 años.
+          {menor
+            ? "Obligatorio para menores de 18 años."
+            : "Completá solo si corresponde. Hay alumnas y alumnos de todas las edades."}
         </p>
         <Field>
-          <Label htmlFor="nivelModalidad">Nivel / Modalidad</Label>
+          <Label htmlFor="nivelModalidad" required={menor}>
+            Nivel / Modalidad
+          </Label>
           <Select id="nivelModalidad" {...register("nivelModalidad")}>
             <option value="">Seleccionar…</option>
             {NIVELES_MODALIDAD.map((s) => (
@@ -276,9 +281,12 @@ export function StepEstudiante() {
               </option>
             ))}
           </Select>
+          <FieldError message={errors.nivelModalidad?.message} />
         </Field>
         <Field>
-          <Label htmlFor="gestion">Gestión</Label>
+          <Label htmlFor="gestion" required={menor}>
+            Gestión
+          </Label>
           <Select id="gestion" {...register("gestion")}>
             <option value="">Seleccionar…</option>
             {GESTIONES.map((s) => (
@@ -287,22 +295,29 @@ export function StepEstudiante() {
               </option>
             ))}
           </Select>
+          <FieldError message={errors.gestion?.message} />
         </Field>
         <Field>
           <Label htmlFor="dependencia">Dependencia</Label>
           <Input id="dependencia" placeholder="Ej. Dirección General de Cultura y Educación" {...register("dependencia")} />
         </Field>
         <Field>
-          <Label htmlFor="anoEstudio">Año de estudio</Label>
+          <Label htmlFor="anoEstudio" required={menor}>
+            Año de estudio
+          </Label>
           <Input id="anoEstudio" placeholder="Ej. 4.º año" {...register("anoEstudio")} />
+          <FieldError message={errors.anoEstudio?.message} />
         </Field>
         <Field className="sm:col-span-2">
-          <Label htmlFor="nombreEscuela">Nombre de la escuela</Label>
+          <Label htmlFor="nombreEscuela" required={menor}>
+            Nombre de la escuela
+          </Label>
           <Input
             id="nombreEscuela"
             placeholder="Escuela de Educación Secundaria N° 14"
             {...register("nombreEscuela")}
           />
+          <FieldError message={errors.nombreEscuela?.message} />
         </Field>
       </section>
     </div>
