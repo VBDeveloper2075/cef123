@@ -1,11 +1,14 @@
 {
-    "$schema": "node_modules/wrangler/config-schema.json",
-    "name": "inscripcion-cef",
-    "main": ".open-next/worker.js",
-    "compatibility_date": "2024-12-30",
-    "compatibility_flags": ["nodejs_compat"],
-    "assets": {
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "inscripcion-cef",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2025-10-11",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
-    }
+  },
+  "observability": {
+    "enabled": true
+  }
 }
