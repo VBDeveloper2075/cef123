@@ -23,6 +23,11 @@ export const metadata: Metadata = {
   title: "Inscripción CEF 123 Caseros",
   description:
     "Ficha digital de inscripción del Centro de Educación Física N.º 123 Caseros. Ahorramos fotocopias.",
+  icons: {
+    icon: [{ url: "/cef123.jpg", type: "image/jpeg", sizes: "any" }],
+    shortcut: [{ url: "/cef123.jpg", type: "image/jpeg" }],
+    apple: [{ url: "/cef123.jpg", type: "image/jpeg" }],
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

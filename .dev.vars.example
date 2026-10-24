@@ -1,0 +1,10 @@
+# Copiá a .dev.vars para `wrangler dev` / preview (no commitear .dev.vars).
+# En producción: wrangler secret put GOOGLE_PRIVATE_KEY (y MERCADOPAGO_ACCESS_TOKEN si aplica).
+
+SHEETS_PROVIDER=google
+GOOGLE_SHEETS_SPREADSHEET_ID=
+GOOGLE_SERVICE_ACCOUNT_EMAIL=
+GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+
+MERCADOPAGO_ACCESS_TOKEN=
+NEXT_PUBLIC_SITE_URL=http://localhost:8787

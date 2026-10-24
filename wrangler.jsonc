@@ -10,5 +10,16 @@
   },
   "observability": {
     "enabled": true
-  }
+  },
+  "vars": {
+    "NEXT_PUBLIC_SITE_URL": "https://inscripcion-cef.inscripcioncef123.workers.dev",
+    "GOOGLE_SHEETS_TAB": "Inscripciones"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "INSCRIPCIONES_KV",
+      "id": "b7c910c66d424618b452dd212f65952e",
+      "preview_id": "164c90e400f742d7a9c06d981dff44c5"
+    }
+  ]
 }

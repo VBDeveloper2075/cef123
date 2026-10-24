@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { COOPERADORA_MONTO } from "@/lib/constants";
+import { getServerEnv } from "@/lib/server-env";
 
 export async function POST(request: Request) {
   try {
@@ -10,9 +11,10 @@ export async function POST(request: Request) {
       monto?: number;
     };
     const monto = Number(body.monto ?? COOPERADORA_MONTO);
-    const token = process.env.MERCADOPAGO_ACCESS_TOKEN;
+    const env = await getServerEnv();
+    const token = env.MERCADOPAGO_ACCESS_TOKEN;
     const origin =
-      process.env.NEXT_PUBLIC_SITE_URL ??
+      env.NEXT_PUBLIC_SITE_URL ??
       request.headers.get("origin") ??
       "http://localhost:3000";
 

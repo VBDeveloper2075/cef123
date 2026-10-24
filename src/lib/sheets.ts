@@ -1,44 +1,87 @@
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { CICLO_LECTIVO } from "./constants";
 import { mapToSheetRow, SHEET_HEADERS } from "./map-row";
 import type { InscripcionForm } from "./schema";
+import { getServerEnv, isCloudflareWorkerRuntime } from "./server-env";
 
 export type PersistResult = {
   legajo: string;
-  provider: "google" | "local";
+  provider: "google" | "local" | "kv";
   fila: number;
 };
+
+const KV_ROWS_KEY = "cef123:inscripciones:rows";
+
+type ServerEnv = Awaited<ReturnType<typeof getServerEnv>>;
 
 function nextLegajo(existingCount: number) {
   return `CEF-${CICLO_LECTIVO}-${String(existingCount + 1).padStart(4, "0")}`;
 }
 
-function isCloudflareWorker() {
+function hasGoogleConfig(env: ServerEnv) {
   return (
-    typeof navigator !== "undefined" &&
-    navigator.userAgent === "Cloudflare-Workers"
+    Boolean(env.GOOGLE_SHEETS_SPREADSHEET_ID) &&
+    Boolean(env.GOOGLE_SERVICE_ACCOUNT_EMAIL) &&
+    Boolean(env.GOOGLE_PRIVATE_KEY)
   );
+}
+
+async function getInscripcionesKv() {
+  try {
+    const ctx = await getCloudflareContext({ async: true });
+    return ctx.env.INSCRIPCIONES_KV ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export async function persistInscripcion(
   data: InscripcionForm,
 ): Promise<PersistResult> {
-  const provider = process.env.SHEETS_PROVIDER ?? "google";
-  const hasGoogle =
-    Boolean(process.env.GOOGLE_SHEETS_SPREADSHEET_ID) &&
-    Boolean(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL) &&
-    Boolean(process.env.GOOGLE_PRIVATE_KEY);
+  const env = await getServerEnv();
+  const provider = env.SHEETS_PROVIDER ?? "google";
 
-  if (provider !== "local" && hasGoogle) {
-    return persistGoogle(data);
+  if (provider !== "local" && hasGoogleConfig(env)) {
+    return persistGoogle(data, env);
   }
 
-  if (isCloudflareWorker()) {
+  const kv = await getInscripcionesKv();
+  if (kv) {
+    return persistKv(data, kv);
+  }
+
+  if (isCloudflareWorkerRuntime()) {
     throw new Error(
-      "En Cloudflare hay que configurar Google Sheets (GOOGLE_SHEETS_SPREADSHEET_ID, GOOGLE_SERVICE_ACCOUNT_EMAIL y GOOGLE_PRIVATE_KEY). El JSON local no funciona en Workers.",
+      "En Cloudflare hay que configurar Google Sheets (GOOGLE_SHEETS_SPREADSHEET_ID, GOOGLE_SERVICE_ACCOUNT_EMAIL y GOOGLE_PRIVATE_KEY) o el binding INSCRIPCIONES_KV en wrangler.",
     );
   }
 
   return persistLocal(data);
+}
+
+async function persistKv(
+  data: InscripcionForm,
+  kv: NonNullable<Awaited<ReturnType<typeof getInscripcionesKv>>>,
+): Promise<PersistResult> {
+  let rows: string[][] = [];
+  const raw = await kv.get(KV_ROWS_KEY);
+  if (raw) {
+    try {
+      rows = JSON.parse(raw) as string[][];
+    } catch {
+      rows = [[...SHEET_HEADERS]];
+    }
+  } else {
+    rows = [[...SHEET_HEADERS]];
+  }
+  if (!rows.length) rows = [[...SHEET_HEADERS]];
+
+  const students = Math.max(0, rows.length - 1);
+  const legajo = nextLegajo(students);
+  const row = mapToSheetRow(data, legajo);
+  rows.push(row);
+  await kv.put(KV_ROWS_KEY, JSON.stringify(rows));
+  return { legajo, provider: "kv", fila: rows.length };
 }
 
 async function persistLocal(data: InscripcionForm): Promise<PersistResult> {
@@ -66,16 +109,17 @@ async function persistLocal(data: InscripcionForm): Promise<PersistResult> {
 }
 
 function b64urlJson(value: unknown) {
-  return b64url(
-    new TextEncoder().encode(JSON.stringify(value)),
-  );
+  return b64url(new TextEncoder().encode(JSON.stringify(value)));
 }
 
 function b64url(bytes: Uint8Array | ArrayBuffer) {
   const buf = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
   let binary = "";
   for (const b of buf) binary += String.fromCharCode(b);
-  return btoa(binary).replace(/=+$/g, "").replace(/\+/g, "-").replace(/\//g, "_");
+  return btoa(binary)
+    .replace(/=+$/g, "")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_");
 }
 
 function pemToPkcs8(pem: string) {
@@ -89,9 +133,9 @@ function pemToPkcs8(pem: string) {
   return buf.buffer;
 }
 
-async function googleAccessToken() {
-  const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL!;
-  const key = process.env.GOOGLE_PRIVATE_KEY!.replace(/\\n/g, "\n");
+async function googleAccessToken(env: ServerEnv) {
+  const email = env.GOOGLE_SERVICE_ACCOUNT_EMAIL!;
+  const key = env.GOOGLE_PRIVATE_KEY!.replace(/\\n/g, "\n");
   const now = Math.floor(Date.now() / 1000);
   const header = b64urlJson({ alg: "RS256", typ: "JWT" });
   const claim = b64urlJson({
@@ -130,10 +174,13 @@ async function googleAccessToken() {
   return json.access_token;
 }
 
-async function persistGoogle(data: InscripcionForm): Promise<PersistResult> {
-  const spreadsheetId = process.env.GOOGLE_SHEETS_SPREADSHEET_ID!;
-  const tab = process.env.GOOGLE_SHEETS_TAB ?? "Inscripciones";
-  const token = await googleAccessToken();
+async function persistGoogle(
+  data: InscripcionForm,
+  env: ServerEnv,
+): Promise<PersistResult> {
+  const spreadsheetId = env.GOOGLE_SHEETS_SPREADSHEET_ID!;
+  const tab = env.GOOGLE_SHEETS_TAB ?? "Inscripciones";
+  const token = await googleAccessToken(env);
   const headers = {
     Authorization: `Bearer ${token}`,
     "Content-Type": "application/json",

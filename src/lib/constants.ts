@@ -8,12 +8,16 @@ export const REDES = [
   {
     id: "instagram",
     label: "Instagram",
-    href: process.env.NEXT_PUBLIC_SOCIAL_INSTAGRAM || "#instagram",
+    href:
+      process.env.NEXT_PUBLIC_SOCIAL_INSTAGRAM ||
+      "https://www.instagram.com/cefcaseros/",
   },
   {
     id: "facebook",
     label: "Facebook",
-    href: process.env.NEXT_PUBLIC_SOCIAL_FACEBOOK || "#facebook",
+    href:
+      process.env.NEXT_PUBLIC_SOCIAL_FACEBOOK ||
+      "https://www.facebook.com/profile.php?id=61552714892544",
   },
   {
     id: "youtube",
